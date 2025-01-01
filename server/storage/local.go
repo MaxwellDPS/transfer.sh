@@ -110,13 +110,21 @@ func (s *LocalStorage) IsNotExist(err error) bool {
 	return os.IsNotExist(err)
 }
 
+// isValidFilename checks if the filename is valid and does not contain any path separators or parent directory references
+func isValidFilename(filename string) bool {
+	if strings.Contains(filename, "/") || strings.Contains(filename, "\\") || strings.Contains(filename, "..") {
+		return false
+	}
+	return true
+}
+
 // Put saves a file on storage
 func (s *LocalStorage) Put(_ context.Context, token string, filename string, reader io.Reader, contentType string, contentLength uint64) error {
 	var f io.WriteCloser
 	var err error
 
-	// Validate filename to ensure it does not contain path separators or parent directory references
-	if strings.Contains(filename, "/") || strings.Contains(filename, "\\") || strings.Contains(filename, "..") {
+	// Validate filename using isValidFilename function
+	if !isValidFilename(filename) {
 		return fmt.Errorf("invalid file name")
 	}
 

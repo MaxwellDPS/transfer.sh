@@ -256,6 +256,13 @@ func (s *Server) previewHandler(w http.ResponseWriter, r *http.Request) {
 	token := vars["token"]
 	filename := vars["filename"]
 
+	// Validate token and filename
+	if strings.Contains(token, "/") || strings.Contains(token, "\\") || strings.Contains(token, "..") ||
+		strings.Contains(filename, "/") || strings.Contains(filename, "\\") || strings.Contains(filename, "..") {
+		http.Error(w, "Invalid token or filename", http.StatusBadRequest)
+		return
+	}
+
 	metadata, err := s.checkMetadata(r.Context(), token, filename, false)
 
 	if err != nil {

@@ -29,6 +29,10 @@ func (s *LocalStorage) Type() string {
 
 // Head retrieves content length of a file from storage
 func (s *LocalStorage) Head(_ context.Context, token string, filename string) (contentLength uint64, err error) {
+	if strings.Contains(token, "/") || strings.Contains(token, "\\") || strings.Contains(token, "..") ||
+		strings.Contains(filename, "/") || strings.Contains(filename, "\\") || strings.Contains(filename, "..") {
+		return 0, fmt.Errorf("invalid token or filename")
+	}
 	path := filepath.Join(s.basedir, token, filename)
 
 	var fi os.FileInfo
@@ -43,6 +47,10 @@ func (s *LocalStorage) Head(_ context.Context, token string, filename string) (c
 
 // Get retrieves a file from storage
 func (s *LocalStorage) Get(_ context.Context, token string, filename string, rng *Range) (reader io.ReadCloser, contentLength uint64, err error) {
+	if strings.Contains(token, "/") || strings.Contains(token, "\\") || strings.Contains(token, "..") ||
+		strings.Contains(filename, "/") || strings.Contains(filename, "\\") || strings.Contains(filename, "..") {
+		return nil, 0, fmt.Errorf("invalid token or filename")
+	}
 	path := filepath.Join(s.basedir, token, filename)
 
 	var file *os.File
